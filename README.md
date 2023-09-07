@@ -9,6 +9,185 @@
 - **Delegate Pattern:** The Delegate Pattern is used for communication between objects and is often employed in this project for parsing JSON responses into data models.
 - **Async/Await:** Async/Await is a modern Swift feature that simplifies asynchronous programming by allowing developers to write asynchronous code in a more sequential and readable manner, enhancing the project's overall maintainability and readability.
 
+
+## **Network Manager using Swift**
+
+Let's start by explaining the code in the NetworkHelper.swift file, and then we'll delve into how it relates to the overall network layer.
+
+### NetworkHelper.swift
+
+This Swift file defines a set of protocols and extensions that serve as the foundation for building a generic network layer. Here's a breakdown of the key components in this file:
+
+##
+
+#### `HTTPMethod` Enum
+
+```Swift
+enum HTTPMethod: String {
+    case GET
+    case POST
+    case PUT
+    case DELETE
+}
+```
+- This enum defines common HTTP methods as cases, representing GET, POST, PUT, and DELETE.
+
+##
+
+#### `EndpointProtocol` Protocol
+
+```Swift
+protocol EndpointProtocol {
+    var baseURL: String { get }
+    var path: String { get }
+    var method: HTTPMethod { get }
+    var header: [String: String]? { get }
+    var queryParams: [String: Any]? { get }
+    var multipartFormData: [(name: String, filename: String, data: Data)]? { get }
+}
+```
+- This protocol defines the structure for creating network request endpoints. It includes properties like baseURL, path, method, header, queryParams, and multipartFormData, allowing you to specify various details of an API endpoint.
+
+##
+
+#### `makeUrlRequest()` Extension Method
+
+```Swift
+extension EndpointProtocol {
+    
+    func makeUrlRequest() -> URLRequest {
+        guard var components = URLComponents(string: baseURL) else { fatalError("Invalid base URL") }
+        
+        // Add path
+        components.path = path
+        
+        //Create request
+        var request = URLRequest(url: components.url!)
+        request.httpMethod = method.rawValue
+        
+        //Add queryParams
+        if let queryParams = queryParams {
+            if method == .GET {
+                // For GET requests, append query parameters to the URL
+                
+                var queryItems: [URLQueryItem] = []
+                for (key, value) in queryParams {
+                    let queryItem = URLQueryItem(name: key, value: String(describing: value))
+                    queryItems.append(queryItem)
+                }
+                components.queryItems = queryItems
+                request.url = components.url
+                
+            } else {
+                // For other methods, add query parameters to the request body
+                
+                do {
+                    let data = try JSONSerialization.data(withJSONObject: queryParams)
+                    request.httpBody = data
+                } catch {
+                    print(error.localizedDescription)
+                }
+                
+            }
+        }
+        
+        //Add header
+        if let header = header {
+            for (key, value) in header {
+                request.setValue(value, forHTTPHeaderField: key)
+            }
+        }
+        
+        //Add multipart form data
+        if let multipartFormData = multipartFormData {
+            let boundary = "Boundary-\(UUID().uuidString)"
+            request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+            
+            for formData in multipartFormData {
+                request.httpBody?.append("--\(boundary)\r\n".data(using: .utf8)!)
+                request.httpBody?.append("Content-Disposition: form-data; name=\"\(formData.name)\"; filename=\"\(formData.filename)\"\r\n".data(using: .utf8)!)
+                request.httpBody?.append("Content-Type: application/octet-stream\r\n\r\n".data(using: .utf8)!)
+                request.httpBody?.append(formData.data)
+                request.httpBody?.append("\r\n".data(using: .utf8)!)
+            }
+        }
+        
+        return request
+    }
+    
+}
+```
+- This extension method provides a convenient way to create a URLRequest from an EndpointProtocol. It constructs and configures a URLRequest based on the provided properties such as baseURL, path, method, header, queryParams, and multipartFormData. This makes it easy to generate a request object for making network calls.
+
+##
+
+This project demonstrates a simple network manager in Swift that allows you to send HTTP requests and handle responses using asynchronous programming. The NetworkManager protocol defines a set of methods for sending requests, and the URLSessionNetworkManager class implements this protocol for handling network operations.
+
+### NetworkManager Protocol
+
+The NetworkManager protocol defines a method for sending HTTP requests and receiving responses asynchronously. Here's a brief overview of the protocol:
+
+```Swift
+protocol NetworkManager {
+    func sendRequest<T: Decodable>(_ endpoint: EndpointProtocol, responseType: T.Type) async throws -> T
+}
+
+```
+
+- **sendRequest:**: his method sends an HTTP request using the provided EndpointProtocol and expects a response of a specified type T. It uses Swift's async/await for asynchronous execution and can throw errors in case of failures.
+
+### URLSessionNetworkManager Implementation
+
+The URLSessionNetworkManager class is an implementation of the NetworkManager protocol. It uses Apple's URLSession to perform network operations. Here's an explanation of the class:
+
+```Swift
+class URLSessionNetworkManager: NetworkManager {
+    static let shared = URLSessionNetworkManager()
+    
+    private init() {}
+    
+    //Error enums
+     enum NetworkError: Error {
+        case invalidURL
+        case requestFailed
+        case invalidResponse
+        case decodingError
+    }
+    
+
+    func sendRequest<T: Decodable>(_ endpoint: EndpointProtocol, responseType: T.Type) async throws -> T {
+        // Create an HTTP request using the provided endpoint.
+        let request = endpoint.makeUrlRequest()
+        
+        do {
+            // Perform the network request and await the response.
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            // Check if the response status code is in the 200-299 range.
+            guard let httpResponse = response as? HTTPURLResponse,
+                  (200...299).contains(httpResponse.statusCode) else {
+                throw NetworkError.invalidResponse
+            }
+            
+            do {
+                // Deserialize the response data into the specified type.
+                let response = try JSONDecoder().decode(T.self, from: data)
+                return response
+            } catch {
+                throw NetworkError.decodingError
+            }
+            
+        } catch {
+            throw NetworkError.requestFailed
+        }
+    }
+}
+```
+ - **shared:**: This property provides a shared instance of the URLSessionNetworkManager to ensure a single point of access to the network manager.
+- **sendRequest:**: This method implements the sendRequest protocol method. It creates an HTTP request using the provided EndpointProtocol, sends the request using URLSession, and handles errors, response validation, and decoding.
+
+
+
 ## How to use this network layer
 
 You can use the Generic Network Layer by following these steps:
