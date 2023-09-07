@@ -11,8 +11,7 @@ class MockSecondService: SecondServiceProtocol {
     private let mockProducts: [Product] = [
         Product(id: 1, name: "Ürün 1", price: 19.99, description: "Ürün 1 açıklaması"),
         Product(id: 2, name: "Ürün 2", price: 29.99, description: "Ürün 2 açıklaması"),
-        Product(id: 3, name: "Ürün 3", price: 39.99, description: "Ürün 3 açıklaması"),
-        // Daha fazla mock ürün ekleyebilirsiniz
+        Product(id: 3, name: "Ürün 3", price: 39.99, description: "Ürün 3 açıklaması")
     ]
 
     func getAllProducts() async throws -> APIResponse<[Product]> {

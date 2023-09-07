@@ -63,7 +63,7 @@ extension FirstVC: UITableViewDelegate, UITableViewDataSource {
     
 }
 
-// MARK: - SecondVMDelegate
+// MARK: - FirstVMDelegate
 extension FirstVC: FirstVMDelegate {
     
     func reloadTableView() {

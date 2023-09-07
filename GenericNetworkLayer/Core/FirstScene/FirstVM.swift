@@ -33,7 +33,7 @@ final class FirstVM{
                     viewDelegate?.reloadTableView()
                 }
             case "error":
-                let errorMessage = response.message ?? "Bir hata oluştu"
+                let errorMessage = response.message ?? "Something went wrong"
                 viewDelegate?.didFailWithError(error: errorMessage)
             default:
                 break

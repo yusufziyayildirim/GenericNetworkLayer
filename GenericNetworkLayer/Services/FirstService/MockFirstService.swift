@@ -7,7 +7,6 @@
 
 import Foundation
 
-// Mock veri sunan bir sınıf. İstediğiniz şekilde bu mock verileri doldurun.
 class MockDataService: FirstServiceProtocol {
     
     private var currentUser = User(id: 1, username: "currentUser", email: "currentUser@example.com", imgUrl: "https://example.com/img1.jpg")
