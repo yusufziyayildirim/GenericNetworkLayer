@@ -27,12 +27,12 @@ final class FirstVM{
         do {
             let response = try await service.getAllUsers()
             switch response.status {
-            case "success":
+            case .success:
                 if let users = response.data {
                     self.users = users
                     viewDelegate?.reloadTableView()
                 }
-            case "error":
+            case .error:
                 let errorMessage = response.message ?? "Something went wrong"
                 viewDelegate?.didFailWithError(error: errorMessage)
             default:

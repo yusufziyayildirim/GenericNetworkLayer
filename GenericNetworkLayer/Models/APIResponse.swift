@@ -8,7 +8,13 @@
 import Foundation
 
 struct APIResponse<T: Codable>: Codable {
-    let status: String?
+    let status: APIResponseStatus?
     let message: String?
     let data: T?
+}
+
+enum APIResponseStatus: String, Codable {
+    case success = "success"
+    case error = "error"
+    case unknown = "unknown"
 }

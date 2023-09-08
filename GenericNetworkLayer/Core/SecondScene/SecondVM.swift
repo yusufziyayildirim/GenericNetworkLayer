@@ -28,13 +28,13 @@ final class SecondVM {
             let response = try await service.getAllProducts()
             switch response.status {
                 
-            case "success":
+            case .success:
                 if let products = response.data {
                     self.products = products
                     viewDelegate?.reloadTableView()
                 }
                 
-            case "error":
+            case .error:
                 let errorMessage = response.message ?? "Something went wrong"
                 viewDelegate?.didFailWithError(error: errorMessage)
                 

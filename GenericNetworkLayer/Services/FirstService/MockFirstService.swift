@@ -18,22 +18,22 @@ class MockDataService: FirstServiceProtocol {
     ]
     
     func getAllUsers() async throws -> APIResponse<[User]> {
-        return APIResponse(status: "success", message: "All Users", data: mockUsers)
+        return APIResponse(status: .success, message: "All Users", data: mockUsers)
     }
     
     func getUser(id: Int) async throws -> APIResponse<User> {
-        return APIResponse(status: "success", message: "The User", data: currentUser)
+        return APIResponse(status: .success, message: "The User", data: currentUser)
     }
     
     func setCurrentUserData() async throws -> APIResponse<User> {
         let newCurrentUser = User(id: 999, username: "mockuser999", email: "newCurrentUser@example.com", imgUrl: "https://example.com/mockimg.jpg")
         currentUser = newCurrentUser
-        return APIResponse(status: "success", message: "Current user data updated", data: currentUser)
+        return APIResponse(status: .success, message: "Current user data updated", data: currentUser)
     }
     
     func uploadCurrentUserProfileImage(imageData: Data) async throws -> APIResponse<User> {
         let newCurrentUser = User(id: 999, username: "mockuser999", email: "mockuser999newCurrentUser@example.com", imgUrl: "https://example.com/newMockimg.jpg")
         currentUser = newCurrentUser
-        return APIResponse(status: "success", message: "Current user profile image updated", data: currentUser)
+        return APIResponse(status: .success, message: "Current user profile image updated", data: currentUser)
     }
 }

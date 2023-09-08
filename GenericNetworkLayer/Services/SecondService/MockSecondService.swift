@@ -15,11 +15,11 @@ class MockSecondService: SecondServiceProtocol {
     ]
 
     func getAllProducts() async throws -> APIResponse<[Product]> {
-        return APIResponse(status: "success", message: "Tüm ürünler", data: mockProducts)
+        return APIResponse(status: .success, message: "Tüm ürünler", data: mockProducts)
     }
 
     func getProduct(id: Int) async throws -> APIResponse<Product> {
         let product = mockProducts.first
-        return APIResponse(status: "success", message: "Ürün bulundu", data: product!)
+        return APIResponse(status: .success, message: "Ürün bulundu", data: product!)
     }
 }
