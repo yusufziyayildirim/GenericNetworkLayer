@@ -196,9 +196,15 @@ You can use the Generic Network Layer by following these steps:
 
 ```swift
 struct APIResponse<T: Codable>: Codable {
-    let status: String?
+    let status: APIResponseStatus?
     let message: String?
     let data: T?
+}
+
+enum APIResponseStatus: String, Codable {
+    case success = "success"
+    case error = "error"
+    case unknown = "unknown"
 }
 ```
 
@@ -309,23 +315,23 @@ class MockUserService: UserServiceProtocol {
     ]
     
     func getAllUsers() async throws -> APIResponse<[User]> {
-        return APIResponse(status: "success", message: "All Users", data: mockUsers)
+        return APIResponse(status: .success, message: "All Users", data: mockUsers)
     }
     
     func getUser(id: Int) async throws -> APIResponse<User> {
-        return APIResponse(status: "success", message: "The User", data: currentUser)
+        return APIResponse(status: .success, message: "The User", data: currentUser)
     }
     
     func setCurrentUserData() async throws -> APIResponse<User> {
         let newCurrentUser = User(id: 999, username: "mockuser999", email: "newCurrentUser@example.com", imgUrl: "https://example.com/mockimg.jpg")
         currentUser = newCurrentUser
-        return APIResponse(status: "success", message: "Current user data updated", data: currentUser)
+        return APIResponse(status: .success, message: "Current user data updated", data: currentUser)
     }
     
     func uploadCurrentUserProfileImage(imageData: Data) async throws -> APIResponse<User> {
         let newCurrentUser = User(id: 999, username: "mockuser999", email: "mockuser999newCurrentUser@example.com", imgUrl: "https://example.com/newMockimg.jpg")
         currentUser = newCurrentUser
-        return APIResponse(status: "success", message: "Current user profile image updated", data: currentUser)
+        return APIResponse(status: .success, message: "Current user profile image updated", data: currentUser)
     }
 }
 ```
@@ -465,13 +471,13 @@ final class UserListVM{
             let response = try await service.getAllUsers()
             switch response.status {
 
-            case "success":
+            case .success:
                 if let users = response.data {
                     self.users = users
                     viewDelegate?.reloadTableView()
                 }
 
-            case "error":
+            case .error:
                 let errorMessage = response.message ?? "Something went wrong"
                 viewDelegate?.didFailWithError(error: errorMessage)
 
